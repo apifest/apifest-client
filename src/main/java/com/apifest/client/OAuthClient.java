@@ -9,6 +9,10 @@ import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 public class OAuthClient {
     private String oauthUrl;
 
+    @SuppressWarnings("unused")
+    private OAuthClient() {
+    }
+
     public OAuthClient(String oauthUrl) {
         this.oauthUrl = oauthUrl;
     }
@@ -50,15 +54,14 @@ public class OAuthClient {
         }
     }
 
-    public String fetchApplicationToken(String initialScope, String clientId, String clientSecret) {
+    public OAuthTokenResponse fetchApplicationToken(String initialScope, String clientId, String clientSecret) {
         ResteasyClient client = new ResteasyClientBuilder().build();
         ResteasyWebTarget target = client.target(oauthUrl);
         Response response = target.proxy(OAuthServer.class).fetchApplicationToken("client_credentials", initialScope,
                 clientId, clientSecret);
         if (response.getStatus() != 200) {
-            throw new RuntimeException("Cannot fetch application token " + response.readEntity(String.class));
+            return null;
         }
-        OAuthTokenResponse tokenResponse = response.readEntity(OAuthTokenResponse.class);
-        return tokenResponse.getAccess_token();
+        return response.readEntity(OAuthTokenResponse.class);
     }
 }
