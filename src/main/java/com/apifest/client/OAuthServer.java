@@ -40,9 +40,11 @@ public interface OAuthServer {
     @POST
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
-    Response fetchApplicationToken(@FormParam("grant_type") String grantType,
-                                   @FormParam("scope") String scope,
-                                   @FormParam("client_id") String clientId,
-                                   @FormParam("client_secret") String clientSecret);
+    Response fetchToken(@FormParam("grant_type") String grantType,
+                        @FormParam("scope") String scope,
+                        @FormParam("client_id") String clientId,
+                        @FormParam("client_secret") String clientSecret,
+                        @FormParam("username") String username,
+                        @FormParam("password") String password);
 
 }

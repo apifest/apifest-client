@@ -54,11 +54,15 @@ public class OAuthClient {
         }
     }
 
-    public OAuthTokenResponse fetchApplicationToken(String initialScope, String clientId, String clientSecret) {
+    public OAuthTokenResponse fetchToken(TokenRequest tokenRequest) {
         ResteasyClient client = new ResteasyClientBuilder().build();
         ResteasyWebTarget target = client.target(oauthUrl);
-        Response response = target.proxy(OAuthServer.class).fetchApplicationToken("client_credentials", initialScope,
-                clientId, clientSecret);
+        Response response = target.proxy(OAuthServer.class).fetchToken(tokenRequest.getGrant_type(),
+                                                                       tokenRequest.getScope(),
+                                                                       tokenRequest.getClient_id(),
+                                                                       tokenRequest.getClient_secret(),
+                                                                       tokenRequest.getUsername(),
+                                                                       tokenRequest.getPassword());
         if (response.getStatus() != 200) {
             return null;
         }
