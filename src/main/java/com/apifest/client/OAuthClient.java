@@ -63,9 +63,10 @@ public class OAuthClient {
                                                                        tokenRequest.getClient_secret(),
                                                                        tokenRequest.getUsername(),
                                                                        tokenRequest.getPassword());
-        if (response.getStatus() != 200) {
+        if (response.getStatus() != 200 && response.getStatus() != 400) {
             return null;
         }
         return response.readEntity(OAuthTokenResponse.class);
     }
+
 }
