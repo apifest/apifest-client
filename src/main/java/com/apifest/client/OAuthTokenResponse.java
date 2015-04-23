@@ -6,6 +6,7 @@ public class OAuthTokenResponse {
     Long expires_in;
     String scope;
     String refresh_token;
+    String error;
 
     public String getAccess_token() {
         return access_token;
@@ -45,6 +46,14 @@ public class OAuthTokenResponse {
 
     public void setRefresh_token(String refresh_token) {
         this.refresh_token = refresh_token;
+    }
+    
+    public String getError() {
+        return error;
+    }
+
+    public void setError(String error) {
+        this.error = error;
     }
 
 }
