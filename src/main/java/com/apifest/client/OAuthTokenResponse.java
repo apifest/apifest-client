@@ -7,6 +7,7 @@ public class OAuthTokenResponse {
     String scope;
     String refresh_token;
     String error;
+    String status;
 
     public String getAccess_token() {
         return access_token;
@@ -47,13 +48,23 @@ public class OAuthTokenResponse {
     public void setRefresh_token(String refresh_token) {
         this.refresh_token = refresh_token;
     }
-    
+
     public String getError() {
         return error;
     }
 
     public void setError(String error) {
         this.error = error;
+    }
+
+    public String getStatus()
+    {
+        return status;
+    }
+
+    public void setStatus(String status)
+    {
+        this.status = status;
     }
 
 }
