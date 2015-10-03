@@ -18,10 +18,10 @@ package com.apifest.client;
 
 import java.util.Map;
 
-import org.codehaus.jackson.map.annotate.JsonSerialize;
-import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
-@JsonSerialize(include = Inclusion.NON_EMPTY)
+@JsonInclude(Include.NON_EMPTY)
 public class OAuthApplication {
     String name;
     String description;
