@@ -24,6 +24,7 @@ public class OAuthTokenResponse {
     String refresh_token;
     String error;
     String status;
+    String refresh_expires_in;
 
     public String getAccess_token() {
         return access_token;
@@ -81,6 +82,14 @@ public class OAuthTokenResponse {
     public void setStatus(String status)
     {
         this.status = status;
+    }
+
+    public String getRefresh_expires_in() {
+        return refresh_expires_in;
+    }
+
+    public void setRefresh_expires_in(String refresh_expires_in) {
+        this.refresh_expires_in = refresh_expires_in;
     }
 
 }
