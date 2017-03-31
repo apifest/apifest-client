@@ -63,4 +63,10 @@ public interface OAuthServer {
                         @FormParam("username") String username,
                         @FormParam("password") String password);
 
+    @Path("/tokens/revoke")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    Response revokeToken(RevokeTokenRequest revokeTokenRequest);
+
 }

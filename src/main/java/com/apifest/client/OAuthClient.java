@@ -85,4 +85,14 @@ public class OAuthClient {
         return response.readEntity(OAuthTokenResponse.class);
     }
 
+    public String revokeToken(RevokeTokenRequest revokeTokenRequest) {
+        ResteasyClient client = new ResteasyClientBuilder().build();
+        ResteasyWebTarget target = client.target(oauthUrl);
+        Response response = target.proxy(OAuthServer.class).revokeToken(revokeTokenRequest);
+        if (response.getStatus() != 200) {
+            throw new RuntimeException("Cannot revoke access token " + revokeTokenRequest.getAccess_token());
+        }
+        return response.readEntity(String.class);
+    }
+
 }
