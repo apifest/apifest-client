@@ -69,4 +69,10 @@ public interface OAuthServer {
     @Produces(MediaType.APPLICATION_JSON)
     Response revokeToken(RevokeTokenRequest revokeTokenRequest);
 
+    @Path("/tokens")
+    @DELETE
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    Response revokeUserAccessTokens(RevokeUserTokensRequest revokeUserTokensRequest);
+
 }
