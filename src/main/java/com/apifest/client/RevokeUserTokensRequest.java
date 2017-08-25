@@ -17,14 +17,14 @@ package com.apifest.client;
 
 public class RevokeUserTokensRequest {
 
-    private String userId;
+    private String user_id;
 
-    public String getUserId() {
-        return userId;
+    public String getUser_id() {
+        return user_id;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setUser_id(String userId) {
+        this.user_id = userId;
     }
 
 }
