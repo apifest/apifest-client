@@ -61,7 +61,8 @@ public interface OAuthServer {
                         @FormParam("client_id") String clientId,
                         @FormParam("client_secret") String clientSecret,
                         @FormParam("username") String username,
-                        @FormParam("password") String password);
+                        @FormParam("password") String password,
+                        @FormParam("refresh_token") String refreshToken);
 
     @Path("/tokens/revoke")
     @POST

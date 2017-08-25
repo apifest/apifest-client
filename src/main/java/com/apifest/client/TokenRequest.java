@@ -29,6 +29,8 @@ public class TokenRequest {
 
     private String password;
 
+    private String refresh_token;
+
     public String getUsername() {
         return username;
     }
@@ -77,4 +79,11 @@ public class TokenRequest {
         this.client_secret = client_secret;
     }
 
+    public String getRefresh_token() {
+        return refresh_token;
+    }
+
+    public void setRefresh_token(String refresh_token) {
+        this.refresh_token = refresh_token;
+    }
 }
