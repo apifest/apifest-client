@@ -70,6 +70,18 @@ public class OAuthClient {
         }
     }
 
+    public OAuthApplication getApplication(String clientId) {
+
+        ResteasyClient client = new ResteasyClientBuilder().build();
+        ResteasyWebTarget target = client.target(oauthUrl);
+        Response response = target.proxy(OAuthServer.class).getApplication(clientId);
+        if (response.getStatus() != 200) {
+            throw new RuntimeException("Cannot get application " + clientId);
+        }
+
+        return response.readEntity(OAuthApplication.class);
+    }
+
     public OAuthTokenResponse fetchToken(TokenRequest tokenRequest) {
         ResteasyClient client = new ResteasyClientBuilder().build();
         ResteasyWebTarget target = client.target(oauthUrl);
