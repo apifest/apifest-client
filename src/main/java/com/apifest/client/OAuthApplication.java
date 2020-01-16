@@ -18,8 +18,10 @@ package com.apifest.client;
 
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonInclude(Include.NON_EMPTY)
 public class OAuthApplication {
@@ -27,8 +29,18 @@ public class OAuthApplication {
     String description;
     String scope;
     String redirect_uri;
+    String client_id;
+
+    @JsonIgnore
+    String client_secret;
     Integer status = null;
-    Map<String, String> application_details;
+    Map<String, String> application_details = null;
+
+    @JsonProperty("rate_limit")
+    RateLimit rateLimit;
+
+    @JsonIgnore
+    String registered;
 
     public String getName() {
         return name;
@@ -76,6 +88,42 @@ public class OAuthApplication {
 
     public void setApplication_details(Map<String, String> application_details) {
         this.application_details = application_details;
+    }
+
+    public String getClient_id() {
+        return client_id;
+    }
+
+    public void setClient_id(String client_id) {
+        this.client_id = client_id;
+    }
+
+    @JsonIgnore
+    public String getClient_secret() {
+        return client_secret;
+    }
+
+    @JsonProperty
+    public void setClient_secret(String client_secret) {
+        this.client_secret = client_secret;
+    }
+
+    @JsonIgnore
+    public String getRegistered() {
+        return registered;
+    }
+
+    @JsonProperty
+    public void setRegistered(String registered) {
+        this.registered = registered;
+    }
+
+    public RateLimit getRateLimit() {
+        return rateLimit;
+    }
+
+    public void setRateLimit(RateLimit rateLimit) {
+        this.rateLimit = rateLimit;
     }
 
 }
