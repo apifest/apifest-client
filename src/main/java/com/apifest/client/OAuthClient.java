@@ -19,11 +19,20 @@ package com.apifest.client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.core.Response;
 
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
+import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
+import org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient43Engine;
 
 public class OAuthClient {
     private String oauthUrl;
+    private static final int MAX_CONNECTIONS = 10;
+    private static final int CONNECTION_TIMEOUT = 10 * 1000;
+    private static final int SOCKET_TIMEOUT = 10 * 1000;
 
     @SuppressWarnings("unused")
     private OAuthClient() {
@@ -33,8 +42,25 @@ public class OAuthClient {
         this.oauthUrl = oauthUrl;
     }
 
+    private ResteasyClient getClient() {
+        PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
+        connectionManager.setMaxTotal(MAX_CONNECTIONS);
+        connectionManager.setDefaultMaxPerRoute(MAX_CONNECTIONS);
+        RequestConfig config = RequestConfig.custom()
+                .setConnectTimeout(CONNECTION_TIMEOUT)
+                .setConnectionRequestTimeout(CONNECTION_TIMEOUT)
+                .setSocketTimeout(SOCKET_TIMEOUT).build();
+        CloseableHttpClient httpClient = HttpClients.custom()
+                .setConnectionManager(connectionManager)
+                .setDefaultRequestConfig(config).build();
+
+        ApacheHttpClient43Engine engine = new ApacheHttpClient43Engine(httpClient);
+        ResteasyClient client = ((ResteasyClientBuilder) ClientBuilder.newBuilder()).httpEngine(engine).build();
+        return client;
+    }
+
     public void registerScope(OAuthScope scope) {
-        try (ResteasyClient client = (ResteasyClient) ClientBuilder.newClient()) {
+        try (ResteasyClient client = getClient()) {
             ResteasyWebTarget target = client.target(oauthUrl);
             try (Response response = target.proxy(OAuthServer.class).createScope(scope)) {
                 if (response.getStatus() != 200) {
@@ -45,7 +71,7 @@ public class OAuthClient {
     }
 
     public OAuthApplicationResponse registerApplication(OAuthApplication application) {
-        try (ResteasyClient client = (ResteasyClient) ClientBuilder.newClient()) {
+        try (ResteasyClient client = getClient()) {
             ResteasyWebTarget target = client.target(oauthUrl);
             try (Response response = target.proxy(OAuthServer.class).createApplication(application)) {
                 if (response.getStatus() != 200) {
@@ -57,7 +83,7 @@ public class OAuthClient {
     }
 
     public void removeScope(String scopeId) {
-        try (ResteasyClient client = (ResteasyClient) ClientBuilder.newClient()) {
+        try (ResteasyClient client = getClient()) {
             ResteasyWebTarget target = client.target(oauthUrl);
             try (Response response = target.proxy(OAuthServer.class).removeScope(scopeId)) {
                 if (response.getStatus() != 200) {
@@ -68,7 +94,7 @@ public class OAuthClient {
     }
 
     public void updateApplication(OAuthApplication application, String clientId) {
-        try (ResteasyClient client = (ResteasyClient) ClientBuilder.newClient()) {
+        try (ResteasyClient client = getClient()) {
             ResteasyWebTarget target = client.target(oauthUrl);
             try (Response response = target.proxy(OAuthServer.class).updateApplication(clientId, application)) {
                 if (response.getStatus() != 200) {
@@ -79,7 +105,7 @@ public class OAuthClient {
     }
 
     public OAuthApplication getApplication(String clientId) {
-        try (ResteasyClient client = (ResteasyClient) ClientBuilder.newClient()) {
+        try (ResteasyClient client = getClient()) {
             ResteasyWebTarget target = client.target(oauthUrl);
             try (Response response = target.proxy(OAuthServer.class).getApplication(clientId)) {
                 if (response.getStatus() != 200) {
@@ -91,7 +117,7 @@ public class OAuthClient {
     }
 
     public OAuthTokenResponse fetchToken(TokenRequest tokenRequest) {
-        try (ResteasyClient client = (ResteasyClient) ClientBuilder.newClient()) {
+        try (ResteasyClient client = getClient()) {
             ResteasyWebTarget target = client.target(oauthUrl);
             try (Response response = target.proxy(OAuthServer.class).fetchToken(tokenRequest.getGrant_type(),
                     tokenRequest.getScope(),
@@ -109,7 +135,7 @@ public class OAuthClient {
     }
 
     public String revokeToken(RevokeTokenRequest revokeTokenRequest) {
-        try (ResteasyClient client = (ResteasyClient) ClientBuilder.newClient()) {
+        try (ResteasyClient client = getClient()) {
             ResteasyWebTarget target = client.target(oauthUrl);
             try (Response response = target.proxy(OAuthServer.class).revokeToken(revokeTokenRequest)) {
                 if (response.getStatus() != 200) {
@@ -121,7 +147,7 @@ public class OAuthClient {
     }
 
     public String revokeUserTokens(RevokeUserTokensRequest revokeUserTokensRequest) {
-        try (ResteasyClient client = (ResteasyClient) ClientBuilder.newClient()) {
+        try (ResteasyClient client = getClient()) {
             ResteasyWebTarget target = client.target(oauthUrl);
             try (Response response = target.proxy(OAuthServer.class).revokeUserAccessTokens(revokeUserTokensRequest)) {
                 if (response.getStatus() != 200) {
