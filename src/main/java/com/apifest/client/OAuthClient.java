@@ -28,11 +28,15 @@ import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 import org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient43Engine;
 
+import java.util.concurrent.TimeUnit;
+
 public class OAuthClient {
     private String oauthUrl;
     private static final int MAX_CONNECTIONS = 10;
     private static final int CONNECTION_TIMEOUT = 10 * 1000;
     private static final int SOCKET_TIMEOUT = 10 * 1000;
+
+    private static ResteasyClient client;
 
     @SuppressWarnings("unused")
     private OAuthClient() {
@@ -42,7 +46,8 @@ public class OAuthClient {
         this.oauthUrl = oauthUrl;
     }
 
-    private ResteasyClient getClient() {
+
+    static {
         PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
         connectionManager.setMaxTotal(MAX_CONNECTIONS);
         connectionManager.setDefaultMaxPerRoute(MAX_CONNECTIONS);
@@ -55,106 +60,90 @@ public class OAuthClient {
                 .setDefaultRequestConfig(config).build();
 
         ApacheHttpClient43Engine engine = new ApacheHttpClient43Engine(httpClient);
-        ResteasyClient client = ((ResteasyClientBuilder) ClientBuilder.newBuilder()).httpEngine(engine).build();
-        return client;
+        client = ((ResteasyClientBuilder) ClientBuilder.newBuilder()).httpEngine(engine).build();
     }
 
+
     public void registerScope(OAuthScope scope) {
-        try (ResteasyClient client = getClient()) {
-            ResteasyWebTarget target = client.target(oauthUrl);
-            try (Response response = target.proxy(OAuthServer.class).createScope(scope)) {
-                if (response.getStatus() != 200) {
-                    throw new RuntimeException(response.readEntity(OAuthScopeResponse.class).getStatus());
-                }
+        ResteasyWebTarget target = client.target(oauthUrl);
+        try (Response response = target.proxy(OAuthServer.class).createScope(scope)) {
+            if (response.getStatus() != 200) {
+                throw new RuntimeException(response.readEntity(OAuthScopeResponse.class).getStatus());
             }
         }
     }
 
     public OAuthApplicationResponse registerApplication(OAuthApplication application) {
-        try (ResteasyClient client = getClient()) {
-            ResteasyWebTarget target = client.target(oauthUrl);
-            try (Response response = target.proxy(OAuthServer.class).createApplication(application)) {
-                if (response.getStatus() != 200) {
-                    throw new RuntimeException("Cannot register application " + application.getName());
-                }
-                return response.readEntity(OAuthApplicationResponse.class);
+        ResteasyWebTarget target = client.target(oauthUrl);
+        try (Response response = target.proxy(OAuthServer.class).createApplication(application)) {
+            if (response.getStatus() != 200) {
+                throw new RuntimeException("Cannot register application " + application.getName());
             }
+            return response.readEntity(OAuthApplicationResponse.class);
         }
     }
 
     public void removeScope(String scopeId) {
-        try (ResteasyClient client = getClient()) {
-            ResteasyWebTarget target = client.target(oauthUrl);
-            try (Response response = target.proxy(OAuthServer.class).removeScope(scopeId)) {
-                if (response.getStatus() != 200) {
-                    throw new RuntimeException("Cannot delete scope " + scopeId);
-                }
+        ResteasyWebTarget target = client.target(oauthUrl);
+        try (Response response = target.proxy(OAuthServer.class).removeScope(scopeId)) {
+            if (response.getStatus() != 200) {
+                throw new RuntimeException("Cannot delete scope " + scopeId);
             }
         }
     }
 
     public void updateApplication(OAuthApplication application, String clientId) {
-        try (ResteasyClient client = getClient()) {
-            ResteasyWebTarget target = client.target(oauthUrl);
-            try (Response response = target.proxy(OAuthServer.class).updateApplication(clientId, application)) {
-                if (response.getStatus() != 200) {
-                    throw new RuntimeException("Cannot remove application " + clientId);
-                }
+        ResteasyWebTarget target = client.target(oauthUrl);
+        try (Response response = target.proxy(OAuthServer.class).updateApplication(clientId, application)) {
+            if (response.getStatus() != 200) {
+                throw new RuntimeException("Cannot remove application " + clientId);
             }
         }
     }
 
     public OAuthApplication getApplication(String clientId) {
-        try (ResteasyClient client = getClient()) {
-            ResteasyWebTarget target = client.target(oauthUrl);
-            try (Response response = target.proxy(OAuthServer.class).getApplication(clientId)) {
-                if (response.getStatus() != 200) {
-                    throw new RuntimeException("Cannot get application " + clientId);
-                }
-                return response.readEntity(OAuthApplication.class);
+        ResteasyWebTarget target = client.target(oauthUrl);
+        try (Response response = target.proxy(OAuthServer.class).getApplication(clientId)) {
+            if (response.getStatus() != 200) {
+                throw new RuntimeException("Cannot get application " + clientId);
             }
+            return response.readEntity(OAuthApplication.class);
         }
     }
 
     public OAuthTokenResponse fetchToken(TokenRequest tokenRequest) {
-        try (ResteasyClient client = getClient()) {
-            ResteasyWebTarget target = client.target(oauthUrl);
-            try (Response response = target.proxy(OAuthServer.class).fetchToken(tokenRequest.getGrant_type(),
-                    tokenRequest.getScope(),
-                    tokenRequest.getClient_id(),
-                    tokenRequest.getClient_secret(),
-                    tokenRequest.getUsername(),
-                    tokenRequest.getPassword(),
-                    tokenRequest.getRefresh_token())) {
-                if (response.getStatus() != 200 && response.getStatus() != 400) {
-                    return null;
-                }
-                return response.readEntity(OAuthTokenResponse.class);
+        ResteasyWebTarget target = client.target(oauthUrl);
+        try (Response response = target.proxy(OAuthServer.class).fetchToken(tokenRequest.getGrant_type(),
+                tokenRequest.getScope(),
+                tokenRequest.getClient_id(),
+                tokenRequest.getClient_secret(),
+                tokenRequest.getUsername(),
+                tokenRequest.getPassword(),
+                tokenRequest.getRefresh_token())) {
+            if (response.getStatus() != 200 && response.getStatus() != 400) {
+                return null;
             }
+            return response.readEntity(OAuthTokenResponse.class);
         }
     }
 
     public String revokeToken(RevokeTokenRequest revokeTokenRequest) {
-        try (ResteasyClient client = getClient()) {
-            ResteasyWebTarget target = client.target(oauthUrl);
-            try (Response response = target.proxy(OAuthServer.class).revokeToken(revokeTokenRequest)) {
-                if (response.getStatus() != 200) {
-                    throw new RuntimeException("Cannot revoke access token " + revokeTokenRequest.getAccess_token());
-                }
-                return response.readEntity(String.class);
+        ResteasyWebTarget target = client.target(oauthUrl);
+        try (Response response = target.proxy(OAuthServer.class).revokeToken(revokeTokenRequest)) {
+            if (response.getStatus() != 200) {
+                throw new RuntimeException("Cannot revoke access token " + revokeTokenRequest.getAccess_token());
             }
+            return response.readEntity(String.class);
         }
     }
 
     public String revokeUserTokens(RevokeUserTokensRequest revokeUserTokensRequest) {
-        try (ResteasyClient client = getClient()) {
-            ResteasyWebTarget target = client.target(oauthUrl);
-            try (Response response = target.proxy(OAuthServer.class).revokeUserAccessTokens(revokeUserTokensRequest)) {
-                if (response.getStatus() != 200) {
-                    throw new RuntimeException("Cannot revoke access tokens for user");
-                }
-                return response.readEntity(String.class);
+        ResteasyWebTarget target = client.target(oauthUrl);
+        try (Response response = target.proxy(OAuthServer.class).revokeUserAccessTokens(revokeUserTokensRequest)) {
+            if (response.getStatus() != 200) {
+                throw new RuntimeException("Cannot revoke access tokens for user");
             }
+            return response.readEntity(String.class);
         }
     }
 
